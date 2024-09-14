@@ -1,7 +1,6 @@
 name: "Test"
 
-on:
-  push:
+on: [push]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -25,9 +24,9 @@ jobs:
           echo "${{ github.ref_name }}"
 
           if ("${{ github.ref_name }}" -match '^v[0-9]+.[0-9]+.[0-9]+$') {
-            echo "is_test=true" >> $env:GITHUB_OUTPUT
-          } else {
             echo "is_test=false" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "is_test=true" >> $env:GITHUB_OUTPUT
           }
 
       - name: View Release Name
@@ -35,5 +34,6 @@ jobs:
           echo "Release name is ${{ steps.variables.outputs.name }}"
 
       - name: Is Test
+        if: ${{ steps.variables.outputs.is_test == 'true' }}
         run: |
-          echo "Test? ${{ steps.variables.outputs.is_test }}"
+          echo "Yeah, It's a test."
