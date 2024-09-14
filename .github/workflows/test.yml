@@ -1,0 +1,27 @@
+name: "Test"
+
+on:
+  push:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+  VCPKG_FEATURE_FLAGS: "dependencygraph"
+
+permissions:
+  contents: "write"
+
+jobs:
+  publish:
+    runs-on: "windows-latest"
+
+    steps:
+      - id: release
+        name: Generate release name
+        run: |
+          $name = ("$env:GITHUB_REF".Substring(4) -split '-') | ForEach-Object { $_.Substring(0, 1).ToUpper() + $_.Substring(1).ToLower() } | Join-String -Separator ' ';
+          echo "name=$name" >> $env:GITHUB_OUTPUT
+
+      - name: Check name
+        run: |
+          echo "the secret number is ${{ steps.release.outputs.name }}"
