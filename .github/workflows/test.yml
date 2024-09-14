@@ -16,12 +16,22 @@ jobs:
     runs-on: "windows-latest"
 
     steps:
-      - id: release
-        name: Generate release name
+      - id: variables
+        name: Generate Variables
         run: |
-          $name = ("$env:GITHUB_REF".Substring(4) -split '-') | ForEach-Object { $_.Substring(0, 1).ToUpper() + $_.Substring(1).ToLower() } | Join-String -Separator ' ';
+          $name = ("${{ github.event.repository.name }}".Substring(4) -split '-') | ForEach-Object { $_.Substring(0, 1).ToUpper() + $_.Substring(1).ToLower() } | Join-String -Separator ' ';
           echo "name=$name" >> $env:GITHUB_OUTPUT
 
-      - name: Check name
+          if ("${{ github.event.base_ref }}" -match '^v[0-9]+.[0-9]+.[0-9]+$') {
+            echo "is_test=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "is_test=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: View Release Name
         run: |
-          echo "the secret number is ${{ steps.release.outputs.name }}"
+          echo "Release name is ${{ steps.variables.outputs.name }}"
+
+      - name: Is Test
+        run: |
+          echo "Test? ${{ steps.variables.outputs.is_test }}"
